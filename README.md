@@ -2,7 +2,7 @@
 
 ## 📖 Project Description
 
-This is firmware for ESP32 or ESP8266 microcontrollers that implements an advanced, 7-channel temperature controller with a web interface. The system is designed for laboratory applications (e.g., controlled gellan gum gelation) that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
+This is firmware for ESP32 or ESP8266 microcontrollers that implements, 7-channel temperature controller with a web interface. The system is designed for laboratory applications that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
 
 The web interface allows for live monitoring of all seven samples and dynamic adjustment of process parameters for each channel independently.
 
@@ -86,8 +86,9 @@ At the top of the `.ino` file (included below), find and change these lines to m
 ```cpp
 const char* ssid = "YourNetworkName";
 const char* password = "YourWiFiPassword";
+```
 
-3. Find Sensor Addresses (CRITICAL STEP)
+###  3. Find Sensor Addresses (CRITICAL STEP)
 
 Each DS18B20 sensor has a unique 64-bit address. The system will not work if the addresses in the code do not match your physical sensors.
 
