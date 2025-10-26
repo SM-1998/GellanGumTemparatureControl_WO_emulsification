@@ -1,12 +1,12 @@
 # Gellan Turbo 3000 - Multi-Channel Temperature Controller
 
-## 📖 Project Description
+## Project Description
 
 This is firmware for ESP32 or ESP8266 microcontrollers that implements, 7-channel temperature controller with a web interface. The system is designed for laboratory applications that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
 
 The web interface allows for live monitoring of all seven samples and dynamic adjustment of process parameters for each channel independently.
 
-## ⚙️ Core Features
+## Core Features
 
 * **7 Independent Channels**: Control seven separate heaters and sensors.
 * **Web Interface**: Accessible from any browser on the local network, with live data updates (AJAX).
@@ -14,7 +14,7 @@ The web interface allows for live monitoring of all seven samples and dynamic ad
 * **State Machine**: Each channel operates in one of three states: `Idle`, `Holding`, or `Cooling`.
 * **Reliability**: Built-in hysteresis prevents rapid relay chattering.
 
-## 🔌 Hardware Requirements
+## Hardware Requirements
 
 * An ESP32 or ESP8266 module (e.g., NodeMCU).
 * 7x **DS18B20** digital temperature sensors.
@@ -24,7 +24,7 @@ The web interface allows for live monitoring of all seven samples and dynamic ad
 
 ---
 
-## 📌 Pinout & Wiring Instructions
+##  Pinout & Wiring Instructions
 
 This is the most critical section for getting the system to work. Pins have been selected to avoid conflicts with the Serial port (used for debugging).
 
@@ -105,15 +105,16 @@ How to find the addresses:
 Once you have all 7 addresses, paste them into the sensorAddresses array in the main .ino file (included below):
 C++
 
+```cpp
 DeviceAddress sensorAddresses[NUM_SENSORS] = {
   {0x28, 0x3F, 0x4C, 0xDA, 0x05, 0x00, 0x00, 0x30}, // Paste Sensor 1 address here
   {0x28, 0x70, 0x40, 0x43, 0xD4, 0xAF, 0x15, 0xD4}, // Paste Sensor 2 address here
   // ...and so on for all 7
 };
-
+```
 You can also update the sensorNames array to match your experiment.
 
-4. Upload and Use
+### 4. Upload and Use
 
     Copy the code from the section below into a new sketch in your Arduino IDE (e.g., GellanTurbo3000.ino).
 
