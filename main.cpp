@@ -34,8 +34,8 @@
 //==============================================================================
 // Configuration
 //==============================================================================
-const char* ssid = "Stanislaw";       // Your WiFi SSID
-const char* password = "12345678"; // Your WiFi Password
+const char* ssid = "SSID";       // Your WiFi SSID
+const char* password = "Password"; // Your WiFi Password
 
 const int NUM_SENSORS = 7;           // Number of sensors/channels to control
 const float HYSTERESIS = 0.5;      // Hysteresis (in °C) to prevent output chattering
@@ -71,7 +71,7 @@ float coolingSpeeds[NUM_SENSORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 /**
  * @brief The minimum temperature setpoint to reach during the cooling ramp.
  */
-float lowerLimits[NUM_SENSORS] = {30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0};
+float lowerLimits[NUM_SENSORS] = {37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0};
 
 /**
  * @brief Duration (in minutes) to hold the temperature after reaching the threshold.
