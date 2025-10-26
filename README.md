@@ -92,9 +92,9 @@ const char* password = "YourWiFiPassword";
 
 Each DS18B20 sensor has a unique 64-bit address. The system will not work if the addresses in the code do not match your physical sensors.
 
-How to find the addresses:
+How to find the addresses: 
 
-    Connect only one DS18B20 sensor to the ESP (to GPIO 4 with the pull-up resistor).
+Connect only one DS18B20 sensor to the ESP (to GPIO 4 with the pull-up resistor).
 
     Upload a simple "OneWireScanner" sketch (available in the examples of the DallasTemperature or OneWire library).
 
@@ -116,11 +116,10 @@ You can also update the sensorNames array to match your experiment.
 
 ### 4. Upload and Use
 
-Copy the code from the section below into a new sketch in your Arduino IDE (e.g., GellanTurbo3000.ino).
-Select the correct board (ESP32 or ESP8266) and COM port in the Arduino IDE.
-Upload the code to your device.
-Open the Serial Monitor (baud rate 115200).
-After the ESP connects to your WiFi, it will print its IP address:
-ESP IP Address: [http://192.168.1.123](http://192.168.1.123)
-Type this IP address into a web browser on a computer or phone connected to the same WiFi network.
-You can now monitor and control the process from the web interface!
+* `Copy the code from the section below into a new sketch in your Arduino IDE (e.g., GellanTurbo3000.ino).`
+* `Select the correct board (ESP32 or ESP8266) and COM port in the Arduino IDE.`
+* `Upload the code to your device.`
+* `Open the Serial Monitor (baud rate 115200).`
+* `After the ESP connects to your WiFi, it will print its IP address: ESP IP Address: [http://192.168.1.123](http://192.168.1.123)`
+* `Type this IP address into a web browser on a computer or phone connected to the same WiFi network.`
+* `You can now monitor and control the process from the web interface!`
