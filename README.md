@@ -1,12 +1,12 @@
 # Gellan Turbo 3000 - Multi-Channel Temperature Controller
 
-Project Description
+## 📖 Project Description
 
 This is firmware for ESP32 or ESP8266 microcontrollers that implements an advanced, 7-channel temperature controller with a web interface. The system is designed for laboratory applications (e.g., controlled gellan gum gelation) that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
 
 The web interface allows for live monitoring of all seven samples and dynamic adjustment of process parameters for each channel independently.
 
-Core Features
+## ⚙️ Core Features
 
 * **7 Independent Channels**: Control seven separate heaters and sensors.
 * **Web Interface**: Accessible from any browser on the local network, with live data updates (AJAX).
@@ -14,7 +14,7 @@ Core Features
 * **State Machine**: Each channel operates in one of three states: `Idle`, `Holding`, or `Cooling`.
 * **Reliability**: Built-in hysteresis prevents rapid relay chattering.
 
-Hardware Requirements
+## 🔌 Hardware Requirements
 
 * An ESP32 or ESP8266 module (e.g., NodeMCU).
 * 7x **DS18B20** digital temperature sensors.
@@ -22,13 +22,13 @@ Hardware Requirements
 * 1x **4.7kΩ** pull-up resistor for the OneWire bus.
 * A suitable power supply for the ESP and a separate, more powerful supply for the heaters.
 
+---
 
-
-Pinout & Wiring Instructions
+## 📌 Pinout & Wiring Instructions
 
 This is the most critical section for getting the system to work. Pins have been selected to avoid conflicts with the Serial port (used for debugging).
 
-1. Temperature Sensors (DS18B20)
+### 1. Temperature Sensors (DS18B20)
 
 All 7 DS18B20 sensors are connected in parallel to a single OneWire bus:
 
@@ -37,7 +37,7 @@ All 7 DS18B20 sensors are connected in parallel to a single OneWire bus:
 * **GND**: Connect all sensor GND pins to **GND**.
 * **Pull-up Resistor (IMPORTANT!)**: You must connect a **4.7kΩ** resistor between the DATA pin (GPIO 4) and the VCC pin (3.3V).
 
-2. Heater Control (Relays)
+### 2. Heater Control (Relays)
 
 Each digital output controls a relay module. Connect the relay module's signal pin (IN) to the corresponding ESP pin.
 
@@ -49,7 +49,7 @@ Each digital output controls a relay module. Connect the relay module's signal p
 * `Heater 6 (Sample 5)`: **GPIO 15** (D8 on NodeMCU)
 * `Heater 7 (Sample 6)`: **GPIO 13** (D7 on NodeMCU)
 
-Summary Table (for NodeMCU ESP8266)
+### Summary Table (for NodeMCU ESP8266)
 
 | Function | GPIO Pin | NodeMCU Label |
 | :--- | :---: | :---: |
@@ -67,9 +67,9 @@ Summary Table (for NodeMCU ESP8266)
 
 ---
 
-Getting Started (Step-by-Step)
+## 🚀 Getting Started (Step-by-Step)
 
-1. Install Libraries
+### 1. Install Libraries
 
 Open the Library Manager in your Arduino IDE and install:
 * `ESPAsyncWebServer`
@@ -79,14 +79,13 @@ Open the Library Manager in your Arduino IDE and install:
 * `DallasTemperature`
 * `ArduinoJson`
 
-2. Configure WiFi 
+### 2. Configure WiFi
 
-At the top of the `.ino` file, find and change these lines to match your local WiFi network:
+At the top of the `.ino` file (included below), find and change these lines to match your local WiFi network:
 
 ```cpp
 const char* ssid = "YourNetworkName";
 const char* password = "YourWiFiPassword";
-
 
 3. Find Sensor Addresses (CRITICAL STEP)
 
@@ -102,7 +101,7 @@ How to find the addresses:
 
     Repeat this process for all 7 sensors, noting which address corresponds to which sample.
 
-Once you have all 7 addresses, paste them into the sensorAddresses array in the main .ino file:
+Once you have all 7 addresses, paste them into the sensorAddresses array in the main .ino file (included below):
 C++
 
 DeviceAddress sensorAddresses[NUM_SENSORS] = {
@@ -114,6 +113,8 @@ DeviceAddress sensorAddresses[NUM_SENSORS] = {
 You can also update the sensorNames array to match your experiment.
 
 4. Upload and Use
+
+    Copy the code from the section below into a new sketch in your Arduino IDE (e.g., GellanTurbo3000.ino).
 
     Select the correct board (ESP32 or ESP8266) and COM port in the Arduino IDE.
 
