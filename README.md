@@ -52,19 +52,19 @@ Each digital output controls a relay module. Connect the relay module's signal p
 
 ### Summary Table (for NodeMCU ESP8266)
 
-| Function | GPIO Pin | NodeMCU Label |
+| Function | GPIO Pin | 
 | :--- | :---: | :---: |
-| **OneWire Bus (DS18B20)** | **GPIO 4** | **D2** |
-| *4.7kΩ Pull-up* | *Between D2 & 3.3V* | |
-| Heater Output 1 | **GPIO 2** | **D4** |
-| Heater Output 2 | **GPIO 5** | **D1** |
-| Heater Output 3 | **GPIO 14** | **D5** |
-| Heater Output 4 | **GPIO 12** | **D6** |
-| Heater Output 5 | **GPIO 16** | **D0** |
-| Heater Output 6 | **GPIO 15** | **D8** |
-| Heater Output 7 | **GPIO 13** | **D7** |
+| **OneWire Bus (DS18B20)** | **GPIO 4** | 
+| *4.7kΩ Pull-up* | *Between D2 & 3.3V* | 
+| Heater Output 1 | **GPIO 2** | 
+| Heater Output 2 | **GPIO 5** | 
+| Heater Output 3 | **GPIO 14** | 
+| Heater Output 4 | **GPIO 12** | 
+| Heater Output 5 | **GPIO 16** | 
+| Heater Output 6 | **GPIO 15** | 
+| Heater Output 7 | **GPIO 13** | 
 
-*(For ESP32, the GPIO numbers typically match the labels on the board, e.g., GPIO 4 is the pin labeled "4").*
+*(Check the GPIO numbers for each controler - Pinout Reference).*
 
 ---
 
