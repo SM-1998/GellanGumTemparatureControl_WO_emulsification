@@ -96,11 +96,11 @@ How to find the addresses:
 
 Connect only one DS18B20 sensor to the ESP (to GPIO 4 with the pull-up resistor).
 
-    Upload a simple "OneWireScanner" sketch (available in the examples of the DallasTemperature or OneWire library).
+Upload a simple "OneWireScanner" sketch (available in the examples of the DallasTemperature or OneWire library).
 
-    Open the Serial Monitor and copy the address (e.g., {0x28, 0x3F, 0x4C, ...}).
+Open the Serial Monitor and copy the address (e.g., {0x28, 0x3F, 0x4C, ...}).
 
-    Repeat this process for all 7 sensors, noting which address corresponds to which sample.
+Repeat this process for all 7 sensors, noting which address corresponds to which sample.
 
 Once you have all 7 addresses, paste them into the sensorAddresses array in the main .ino file (included below):
 C++
