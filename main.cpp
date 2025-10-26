@@ -11,7 +11,7 @@
  * 3. IDLE: Waits for conditions to restart the process.
  *
  * @author [Stanislaw Marecik/ReGenDDS]
- * @date [26.10.2025]
+ * @date [26.10.2025] (Poprawiony 26.10.2025)
  */
 
 //==============================================================================
@@ -52,41 +52,47 @@ int outputPins[NUM_SENSORS] = {2, 5, 14, 12, 16, 15, 13};
 const int oneWireBus = 4; // D2 on NodeMCU
 
 //==============================================================================
-// Global Variables - Process Parameters
+// Global Variables - Process Parameters (Ustawienia użytkownika)
 //==============================================================================
 // These arrays hold the user-configurable settings for each channel.
 
 /**
  * @brief Target temperature setpoint (°C).
- * @note This array is MODIFIED by the cooling ramp logic. It's the "live" setpoint.
+ * @note This is the *user-configured setting*. The "live" setpoint is stored in liveSetpoints[].
  */
-float thresholdTemps[NUM_SENSORS] = {60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
+float setting_HoldTemps[NUM_SENSORS] = {60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief Rate of temperature decrease during the cooling phase (°C / minute).
  */
-float coolingSpeeds[NUM_SENSORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
+float setting_CoolingSpeeds[NUM_SENSORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief The minimum temperature setpoint to reach during the cooling ramp.
  */
-float lowerLimits[NUM_SENSORS] = {37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
+float setting_LowerLimits[NUM_SENSORS] = {37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief Duration (in minutes) to hold the temperature after reaching the threshold.
  */
-unsigned long holdDurations[NUM_SENSORS] = {60, 60, 60, 60, 60, 60, 60}; // <--- CHANGE THIS FOR YOUR TIME
+unsigned long setting_HoldDurations[NUM_SENSORS] = {60, 60, 60, 60, 60, 60, 60}; // <--- CHANGE THIS FOR YOUR TIME
 
 //==============================================================================
 // Global Variables - System State
 //==============================================================================
 // These arrays track the real-time operational state of each channel.
 
-float lastTemperatures[NUM_SENSORS];        // Stores the last valid temperature read
-bool outputState[NUM_SENSORS] = {false};    // Current state of the output pin (HIGH/LOW)
-bool holdPhaseActive[NUM_SENSORS] = {false};  // True if the 'Hold' phase is active
+float lastTemperatures[NUM_SENSORS];       // Stores the last valid temperature read
+bool outputState[NUM_SENSORS] = {false};     // Current state of the output pin (HIGH/LOW)
+bool holdPhaseActive[NUM_SENSORS] = {false};   // True if the 'Hold' phase is active
 bool coolingPhaseActive[NUM_SENSORS] = {false}; // True if the 'Cooling' phase is active
 unsigned long phaseStartMillis[NUM_SENSORS] = {0}; // Timestamp (millis()) when the last phase started
+
+/**
+ * @brief The "live" setpoint used by the control logic.
+ * @note This array is MODIFIED by the cooling ramp. It is reset from setting_HoldTemps.
+ */
+float liveSetpoints[NUM_SENSORS];
 
 //==============================================================================
 // Global Objects
@@ -112,7 +118,7 @@ DeviceAddress sensorAddresses[NUM_SENSORS] = {
 };
 
 // User-friendly names for the web interface
-String sensorNames[NUM_SENSORS] = {"Syringe", "Sample 1", "Sample 2", "Sample 3", "Sample 4", "Sample 5", "Sample 6"}; 
+String sensorNames[NUM_SENSORS] = {"Syringe", "Sample 1", "Sample 2", "Sample 3", "Sample 4", "Sample 5", "Sample 6"};
 
 
 //==============================================================================
@@ -246,10 +252,11 @@ String generateTableRows() {
     rows += "<tr>";
     rows += "<td>" + sensorNames[i] + "</td>";
     rows += "<td id='temp" + String(i) + "'>-</td>"; // Placeholder for live temperature
-    rows += "<td><input type='number' step='0.1' name='threshold" + String(i) + "' value='" + String(thresholdTemps[i]) + "'></td>";
-    rows += "<td><input type='number' step='0.1' name='cooling" + String(i) + "' value='" + String(coolingSpeeds[i]) + "'></td>";
-    rows += "<td><input type='number' step='0.1' name='lower" + String(i) + "' value='" + String(lowerLimits[i]) + "'></td>";
-    rows += "<td><input type='number' step='1' name='hold" + String(i) + "' value='" + String(holdDurations[i]) + "'></td>";
+    // Populate inputs with *user settings*, not live values
+    rows += "<td><input type='number' step='0.1' name='threshold" + String(i) + "' value='" + String(setting_HoldTemps[i]) + "'></td>";
+    rows += "<td><input type='number' step='0.1' name='cooling" + String(i) + "' value='" + String(setting_CoolingSpeeds[i]) + "'></td>";
+    rows += "<td><input type='number' step='0.1' name='lower" + String(i) + "' value='" + String(setting_LowerLimits[i]) + "'></td>";
+    rows += "<td><input type='number' step='1' name='hold" + String(i) + "' value='" + String(setting_HoldDurations[i]) + "'></td>";
     rows += "<td id='time" + String(i) + "'>-</td>";  // Placeholder for remaining time
     rows += "<td id='status" + String(i) + "'>-</td>"; // Placeholder for current status
     rows += "</tr>";
@@ -283,8 +290,14 @@ void setup() {
   for (int i = 0; i < NUM_SENSORS; i++) {
     pinMode(outputPins[i], OUTPUT);
     digitalWrite(outputPins[i], LOW); // Ensure all outputs are off on boot
+    liveSetpoints[i] = setting_HoldTemps[i]; // Initialize live setpoint from settings
   }
   sensors.begin(); // Initialize the DallasTemperature library
+  // Set to non-blocking mode
+  sensors.setWaitForConversion(false);
+  // Send the first temperature request
+  sensors.requestTemperatures();
+
 
   //=======================================
   // --- Web Server Endpoints ---
@@ -321,7 +334,7 @@ void setup() {
       String statusStr = "Idle";
       
       if (holdPhaseActive[i]) {
-        unsigned long holdDurationSecs = holdDurations[i] * 60;
+        unsigned long holdDurationSecs = setting_HoldDurations[i] * 60;
         unsigned long elapsedSecs = (millis() - phaseStartMillis[i]) / 1000;
         
         if (elapsedSecs < holdDurationSecs) {
@@ -356,16 +369,16 @@ void setup() {
     // Iterate through all possible parameters
     for (int i = 0; i < NUM_SENSORS; i++) {
       if (request->hasParam("threshold" + String(i), true)) {
-        thresholdTemps[i] = request->getParam("threshold" + String(i), true)->value().toFloat();
+        setting_HoldTemps[i] = request->getParam("threshold" + String(i), true)->value().toFloat();
       }
       if (request->hasParam("cooling" + String(i), true)) {
-        coolingSpeeds[i] = request->getParam("cooling" + String(i), true)->value().toFloat();
+        setting_CoolingSpeeds[i] = request->getParam("cooling" + String(i), true)->value().toFloat();
       }
       if (request->hasParam("lower" + String(i), true)) {
-        lowerLimits[i] = request->getParam("lower" + String(i), true)->value().toFloat();
+        setting_LowerLimits[i] = request->getParam("lower" + String(i), true)->value().toFloat();
       }
       if (request->hasParam("hold" + String(i), true)) {
-        holdDurations[i] = request->getParam("hold" + String(i), true)->value().toInt();
+        setting_HoldDurations[i] = request->getParam("hold" + String(i), true)->value().toInt();
       }
     }
     
@@ -374,6 +387,7 @@ void setup() {
     for(int i=0; i < NUM_SENSORS; i++) {
         holdPhaseActive[i] = false;
         coolingPhaseActive[i] = false;
+        liveSetpoints[i] = setting_HoldTemps[i]; // Reset live setpoint to new setting
         Serial.println("Sensor " + String(i) + ": Settings updated, cycle reset to Idle.");
     }
     
@@ -406,24 +420,26 @@ void loop() {
   static unsigned long lastLogicUpdate = 0;
 
   // --- Task 1: Read Sensors (Interval: 2000ms) ---
-  // This task requests temperatures from all sensors and stores them.
+  // This task reads the results from the *previous* request
+  // and issues a new non-blocking request for the *next* cycle.
   if (currentMillis - lastSensorRead >= 2000) {
     lastSensorRead = currentMillis;
-    
-    // Issue a non-blocking request to all sensors on the bus
-    sensors.requestTemperatures(); 
     
     // Retrieve the temperature for each sensor by its address
     for (int i = 0; i < NUM_SENSORS; i++) {
       float temp = sensors.getTempC(sensorAddresses[i]);
       
-      if(temp != DEVICE_DISCONNECTED_C) {
+      // 85.0 is a power-on reset value, -127 is disconnected
+      if(temp != DEVICE_DISCONNECTED_C && temp != 85.0) {
         lastTemperatures[i] = temp;
       } else {
         lastTemperatures[i] = -127.0; // Use error value
         Serial.println("Error reading sensor " + String(i));
       }
     }
+
+    // Issue a non-blocking request for all sensors on the bus for the next read cycle
+    sensors.requestTemperatures(); 
   }
 
   // --- Task 2: Control Logic (Interval: 500ms) ---
@@ -445,38 +461,38 @@ void loop() {
       // --- 1. HEATING/HOLDING LOGIC (Output Control) ---
       // This logic controls the physical output pin (heater).
       
-      // Condition: Turn ON output
-      // If temp is at or above the setpoint, turn on the output.
-      if (temp >= thresholdTemps[i] && !outputState[i]) {
+      // Condition: Turn ON output (Heater ON)
+      // If temp is below the "live" setpoint, turn on the heater.
+      if (temp < liveSetpoints[i] && !outputState[i]) {
         digitalWrite(outputPins[i], HIGH);
         outputState[i] = true;
-        Serial.println("Sensor " + String(i) + ": Temp above threshold. Output ON.");
+        Serial.println("Sensor " + String(i) + ": Temp below setpoint. Output ON.");
+
+      // Condition: Turn OFF output (Heater OFF, with Hysteresis)
+      // If temp rises *above* the setpoint + hysteresis, turn off.
+      } else if (temp > (liveSetpoints[i] + HYSTERESIS) && outputState[i]) {
+        digitalWrite(outputPins[i], LOW);
+        outputState[i] = false;
+        Serial.println("Sensor " + String(i) + ": Temp above setpoint+hysteresis. Output OFF.");
         
         // --- State Transition: IDLE -> HOLD ---
-        // If we just crossed the threshold and are not already in a phase,
+        // If we just reached the temp (heater turned off) and are not already in a phase,
         // start the HOLD phase.
         if (!holdPhaseActive[i] && !coolingPhaseActive[i]) {
             holdPhaseActive[i] = true;
             phaseStartMillis[i] = currentMillis; // Start the hold timer
             Serial.println("Sensor " + String(i) + ": Hold phase started.");
         }
-
-      // Condition: Turn OFF output (with Hysteresis)
-      // If temp drops below the setpoint *minus* the hysteresis value,
-      // turn off the output.
-      } else if (temp < (thresholdTemps[i] - HYSTERESIS) && outputState[i]) {
-        digitalWrite(outputPins[i], LOW);
-        outputState[i] = false;
-        Serial.println("Sensor " + String(i) + ": Temp below threshold-hysteresis. Output OFF.");
       }
 
       // --- 2. HOLD PHASE LOGIC ---
       // This logic checks if the hold timer has expired.
       if (holdPhaseActive[i]) {
-        unsigned long holdDurationMillis = holdDurations[i] * 60 * 1000;
+        unsigned long holdDurationSecs = setting_HoldDurations[i] * 60;
+        unsigned long elapsedSecs = (currentMillis - phaseStartMillis[i]) / 1000;
         
         // Check if the elapsed time has exceeded the desired hold duration
-        if (currentMillis - phaseStartMillis[i] >= holdDurationMillis) {
+        if (elapsedSecs >= holdDurationSecs) {
           
           // --- State Transition: HOLD -> COOLING ---
           holdPhaseActive[i] = false;
@@ -487,29 +503,30 @@ void loop() {
       }
 
       // --- 3. COOLING RAMP LOGIC ---
-      // This logic dynamically lowers the 'thresholdTemps' setpoint over time.
+      // This logic dynamically lowers the 'liveSetpoints' setpoint over time.
       if (coolingPhaseActive[i]) {
         
         // Only ramp down if the current setpoint is still above the floor
-        if (thresholdTemps[i] > lowerLimits[i]) {
+        if (liveSetpoints[i] > setting_LowerLimits[i]) {
           
           // Calculate how much the setpoint should decrease in this time slice
-          float degreesPerMilli = coolingSpeeds[i] / 60000.0;
+          float degreesPerMilli = setting_CoolingSpeeds[i] / 60000.0;
           float decreaseAmount = degreesPerMilli * elapsedSinceUpdate;
           
           // Apply the decrease to the "live" setpoint
-          thresholdTemps[i] -= decreaseAmount;
+          liveSetpoints[i] -= decreaseAmount;
 
           // Clamp the setpoint to the lower limit to prevent overshooting
-          if (thresholdTemps[i] < lowerLimits[i]) {
-            thresholdTemps[i] = lowerLimits[i];
+          if (liveSetpoints[i] < setting_LowerLimits[i]) {
+            liveSetpoints[i] = setting_LowerLimits[i];
           }
           
         } else {
           // --- State Transition: COOLING -> IDLE ---
-          // The cooling ramp is complete.
+          // The cooling ramp is complete. Reset state.
           coolingPhaseActive[i] = false;
-          Serial.println("Sensor " + String(i) + ": Cooling finished. Reached lower limit.");
+          liveSetpoints[i] = setting_HoldTemps[i]; // Reset live setpoint to user setting!
+          Serial.println("Sensor " + String(i) + ": Cooling finished. Reached lower limit. Resetting to IDLE.");
         }
       }
     }
