@@ -133,4 +133,4 @@ This code requires several libraries to function.
 2.  In the bottom-right corner of the Serial Monitor, set the baud rate to **115200**.
 3.  Press the `RESET` (or `EN`) button on your ESP board.
 
-You should see startup messages, followed by the IP address:
+You should see startup messages, followed by the IP address: ESP IP Address: http://192.168.1.XX
