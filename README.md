@@ -16,11 +16,12 @@ The web interface allows for live monitoring of all seven samples and dynamic ad
 
 ## Hardware Requirements
 
-* An ESP32 or ESP8266 module (e.g., NodeMCU).
+* An ESP32 or ESP8266 module.
 * 7x **DS18B20** digital temperature sensors.
 * 7x Relay modules or SSRs (Solid State Relays) to control the heaters.
 * 1x **4.7kΩ** pull-up resistor for the OneWire bus.
-* A suitable power supply for the ESP and a separate, more powerful supply for the heaters.
+* A suitable power supply for the ESP (eg. 5V DC) and a separate, more powerful supply for the heaters (eg. 24V DC).
+* A suitable heatrs or heatres with conveverters. 
 
 ---
 
