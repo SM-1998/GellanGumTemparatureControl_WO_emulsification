@@ -11,7 +11,7 @@
  * 3. IDLE: Waits for conditions to restart the process.
  *
  * @author [Stanislaw Marecik/ReGenDDS]
- * @date [26.10.2025] (Poprawiony 26.10.2025)
+ * @date [26.10.2025]
  */
 
 //==============================================================================
