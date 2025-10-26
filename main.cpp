@@ -1,5 +1,4 @@
 /**
- * @file GellanTurbo3000.ino
  * @brief A multi-channel temperature controller with web interface for ESP32/ESP8266.
  *
  * This firmware implements a 7-channel temperature controller designed for
@@ -12,7 +11,7 @@
  * 3. IDLE: Waits for conditions to restart the process.
  *
  * @author [Stanislaw Marecik/ReGenDDS]
- * @date [26_10_2025]
+ * @date [26.10.2025]
  */
 
 //==============================================================================
@@ -34,8 +33,8 @@
 //==============================================================================
 // Configuration
 //==============================================================================
-const char* ssid = "SSID";       // Your WiFi SSID
-const char* password = "Password"; // Your WiFi Password
+const char* ssid = "WIFI SSID";       // <--- CHANGE TO YOUR WIFI SSID
+const char* password = "PASSWORD"; // <--- CHANGE TO YOUR WIFI PASSWORD
 
 const int NUM_SENSORS = 7;           // Number of sensors/channels to control
 const float HYSTERESIS = 0.5;      // Hysteresis (in °C) to prevent output chattering
@@ -61,29 +60,29 @@ const int oneWireBus = 4; // D2 on NodeMCU
  * @brief Target temperature setpoint (°C).
  * @note This array is MODIFIED by the cooling ramp logic. It's the "live" setpoint.
  */
-float thresholdTemps[NUM_SENSORS] = {60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0};
+float thresholdTemps[NUM_SENSORS] = {60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief Rate of temperature decrease during the cooling phase (°C / minute).
  */
-float coolingSpeeds[NUM_SENSORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+float coolingSpeeds[NUM_SENSORS] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief The minimum temperature setpoint to reach during the cooling ramp.
  */
-float lowerLimits[NUM_SENSORS] = {37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0};
+float lowerLimits[NUM_SENSORS] = {37.0, 37.0, 37.0, 37.0, 37.0, 37.0, 37.0}; // <--- CHANGE THIS FOR YOUR TEMPERATURE
 
 /**
  * @brief Duration (in minutes) to hold the temperature after reaching the threshold.
  */
-unsigned long holdDurations[NUM_SENSORS] = {60, 60, 60, 60, 60, 60, 60};
+unsigned long holdDurations[NUM_SENSORS] = {60, 60, 60, 60, 60, 60, 60}; // <--- CHANGE THIS FOR YOUR TIME
 
 //==============================================================================
 // Global Variables - System State
 //==============================================================================
 // These arrays track the real-time operational state of each channel.
 
-float lastTemperatures[NUM_SENSORS];        //Stores the last valid temperature read
+float lastTemperatures[NUM_SENSORS];        // Stores the last valid temperature read
 bool outputState[NUM_SENSORS] = {false};    // Current state of the output pin (HIGH/LOW)
 bool holdPhaseActive[NUM_SENSORS] = {false};  // True if the 'Hold' phase is active
 bool coolingPhaseActive[NUM_SENSORS] = {false}; // True if the 'Cooling' phase is active
@@ -103,17 +102,17 @@ DallasTemperature sensors(&oneWire);
 // IMPORTANT: You must replace these with the addresses of your specific sensors.
 // Use a "OneWireScanner" sketch to find these addresses.
 DeviceAddress sensorAddresses[NUM_SENSORS] = {
-  {0x28, 0x3F, 0x4C, 0xDA, 0x05, 0x00, 0x00, 0x30},
-  {0x28, 0x70, 0x40, 0x43, 0xD4, 0xAF, 0x15, 0xD4},
-  {0x28, 0xAC, 0xDC, 0x46, 0xD4, 0xB9, 0x2B, 0x9D},
-  {0x28, 0x0E, 0x2A, 0x45, 0xD4, 0x8D, 0x3A, 0xC8},
-  {0x28, 0xC5, 0x53, 0x46, 0xD4, 0xB0, 0x37, 0xE0},
-  {0x28, 0xDF, 0x12, 0x45, 0xD4, 0xC1, 0x1A, 0x74},
-  {0x28, 0xCD, 0x11, 0x46, 0xD4, 0xBF, 0x64, 0x0A}
+  {0x28, 0x3F, 0x4C, 0xDA, 0x05, 0x00, 0x00, 0x30}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0x70, 0x40, 0x43, 0xD4, 0xAF, 0x15, 0xD4}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0xAC, 0xDC, 0x46, 0xD4, 0xB9, 0x2B, 0x9D}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0x0E, 0x2A, 0x45, 0xD4, 0x8D, 0x3A, 0xC8}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0xC5, 0x53, 0x46, 0xD4, 0xB0, 0x37, 0xE0}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0xDF, 0x12, 0x45, 0xD4, 0xC1, 0x1A, 0x74}, // <--- CHANGE THIS ADDRESS
+  {0x28, 0xCD, 0x11, 0x46, 0xD4, 0xBF, 0x64, 0x0A}  // <--- CHANGE THIS ADDRESS
 };
 
 // User-friendly names for the web interface
-String sensorNames[NUM_SENSORS] = {"Gellan Gum", "Sample 1", "Sample 2", "Sample 3", "Sample 4", "Sample 5", "Sample 6"};
+String sensorNames[NUM_SENSORS] = {"Syringe", "Sample 1", "Sample 2", "Sample 3", "Sample 4", "Sample 5", "Sample 6"}; 
 
 
 //==============================================================================
@@ -239,11 +238,6 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
 //==============================================================================
 /**
  * @brief  Dynamically generates the HTML table rows for the web interface.
- * @details This function iterates through all configured sensors and builds
- * an HTML string containing one table row (<tr>) for each.
- * This row includes the sensor name, placeholders for dynamic data
- * (temp, status), and input fields (thresholds, etc.)
- * pre-filled with the current global values.
  * @return A String object containing the complete HTML for all table rows.
  */
 String generateTableRows() {
