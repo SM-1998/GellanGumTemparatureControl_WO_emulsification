@@ -2,7 +2,7 @@
 
 ## Project Description
 
-This is firmware for ESP32 or ESP8266 microcontrollers that implements an advanced, 7-channel temperature controller with a web interface. The system is designed for laboratory applications (e.g., controlled gellan gum gelation) that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
+This is firmware for ESP32 or ESP8266 microcontrollers that implements, 7-channel temperature controller with a web interface. The system is designed for laboratory applications (e.g., controlled gellan gum gelation) that require reaching a precise temperature threshold, holding it for a specified duration, and then executing a controlled, linear cooling ramp.
 
 The web interface allows for live monitoring of all seven samples and dynamic adjustment of process parameters for each channel independently.
 
