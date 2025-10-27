@@ -159,10 +159,12 @@ const char HTML_CONTENT[] PROGMEM = R"rawliteral(
           <th>Time Remaining</th>
           <th>Status</th>
         </tr>
-      </thead>
+```html
+            </thead>
       <tbody id="sensor-table">
-        </tbody>
+              </tbody>
     </table>
+      ```
     <input type="submit" value="Save Changes">
     <div id="saveStatus" class="status"></div>
   </form>
@@ -309,11 +311,11 @@ void setup() {
    * and injecting the dynamically generated table rows.
    */
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    String html = FPSTR(HTML_CONTENT);
-    // Find the placeholder and replace it with actual HTML
-    html.replace("", generateTableRows());
-    request->send(200, "text/html", html);
-  });
+    String html = FPSTR(HTML_CONTENT);
+    // Find the placeholder and replace it with actual HTML
+    html.replace("", generateTableRows());
+    request->send(200, "text/html", html);
+  });
 
   /**
    * @brief Serves real-time sensor data as a JSON array.
